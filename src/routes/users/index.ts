@@ -1,5 +1,8 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { UsersService } from '../../services/users/users.service';
+import { CompanyService } from '../../services/companies/companyService';
+import { HttpError } from '../../errors/HttpError';
+import { CompanyAuth } from '../../services/companies/companyAuth';
 
 
 const user: FastifyPluginAsync = async (fastify:any, _opts): Promise<void> => {
@@ -7,20 +10,43 @@ const user: FastifyPluginAsync = async (fastify:any, _opts): Promise<void> => {
     method: 'POST',
     url: '/',
     schema: {
-      public: true,
+      body: {
+        type: 'object',
+        properties: {
+          username: { type: 'string' },
+          email: { type: 'string' },
+          password: { type: 'string' },
+          company: { type: 'string' },
+        },
+      },
     },
     async handler (request:any, reply:any)  {
-      
+      const {user} = request;
       const {username,email,password}:basicUser = request.body;
       const userService = new UsersService();
+      const companyService = new CompanyService();
       const userExist = await userService.getUser({email});
+
       if(userExist) {
         reply.code(409);
         return {message:'User already exist'};
       }
-    
-      await userService.addUser({name:username,email, password});
-      reply.code(201);
+
+      const company = await companyService.getCompany({token:request.body.company});
+
+      if(!company) {
+        throw new HttpError('Company not found',404);
+      }
+
+      const companyId = company.id;
+
+      const companyAuth = new CompanyAuth();
+      console.log(user.id,companyId)
+      await companyAuth.validUser(user.id,companyId,['master','admin']);
+
+      const [userId] = await userService.addUser({name:username,email, password});
+      await companyService.addUserToCompany(companyId,userId);
+      return {message:'User created',status:201};
     }});
 
     fastify.route({

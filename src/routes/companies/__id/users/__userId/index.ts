@@ -2,21 +2,22 @@ import { type FastifyInstance } from 'fastify';
 import { CompanyService } from '../../../../../services/companies/companyService';
 import { RolesServices } from '../../../../../services/roles/RolesServices';
 import { UsersService } from '../../../../../services/users/users.service';
+import { HttpError } from '../../../../../errors/HttpError';
 
 export default async function (fastify: FastifyInstance) {
   fastify.route({
     method: 'GET',
     url: '/',
     async handler(request:any, reply)  {
-      const {id,userId} = request.params;
+      try{
+        const {id,userId} = request.params;
       const companyService = new CompanyService();
       const user = await companyService.getCompanyUserById(id,userId);
-      if(!user){
-        reply.code(404);
-        return {message:'User not found'};
-      }
-
       return user;
+      }catch(err:any){
+        reply.code(err.code || 500).send({message:err.message});
+      }
+      
     }
   },
   );
@@ -45,16 +46,16 @@ async function validateRole(roleName:string,id:number,userId:number){
 
   const [role,isValid] = resp.map((r:any)=>r.value);
   if(!role){
-    throw {message:'Role not found',code:404};
+    throw new HttpError('Role not found',404);
   }
 
   if(!isValid){
-    throw {message:'User does not belong to company',code:403};
+    throw new HttpError('User does not belong to company',404);
   }
 
   const hasRole = await userService.userHasRole(userId,role.id);
   if(hasRole){
-    throw {message:'User already has role',code:409};
+    throw new HttpError('User already has this role',400);
   }
 
   return {

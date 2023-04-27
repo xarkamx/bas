@@ -8,9 +8,9 @@ export async function up(knex: Knex): Promise<void> {
         table.integer('domain_id').unsigned().notNullable();
         table.integer('role_id').nullable();
         table.timestamps(true, true);
-        table.foreign('user_id').references('users');
-        table.foreign('domain_id').references('domains');
-        table.foreign('role_id').references('roles');
+        table.foreign('user_id');
+        table.foreign('domain_id');
+        table.foreign('role_id');
     });
 }
 

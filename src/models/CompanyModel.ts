@@ -1,7 +1,7 @@
 
 import { db } from '../config/db';
+import { generateRandomString } from '../utils/helpers';
 import { snakeCaseReplacer } from '../utils/objectFormat';
-
 
 export class CompanyModel {
   tableName: string;
@@ -12,10 +12,11 @@ export class CompanyModel {
   }
 
   async addCompany(company: ICompany) {
-    company = snakeCaseReplacer(company);
+    const compObj:any=snakeCaseReplacer(company);
+    compObj.token = `${company.name}-${generateRandomString()}`;
     const res = await this.db
       .transaction(async (trx: any) => 
-      trx.insert(company).into(this.tableName)
+      trx.insert(compObj).into(this.tableName)
       );
     return res;
   }

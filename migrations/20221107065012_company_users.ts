@@ -5,7 +5,6 @@ exports.up =  async function (knex: Knex): Promise<void> {
     table.increments('id');
     table.integer('user_id');
     table.integer('company_id');
-    table.foreign('user_id').references('users.id');
     table.timestamps(true, true);
   });
 };
