@@ -4,10 +4,15 @@ export default async function (fastify: any) {
   fastify.route({
     method: 'GET',
     url: '/',
+    config: {
+      auth:{
+        roles: ['master','admin'],
+        companyOnly: true
+      }
+    },
     async handler(request:any, reply:any)  {
-      const {id} = request.params;
+      const {company} = request.user;
       const companyService = new CompanyService();
-      const company = await companyService.getCompany({token:id});
       const res = await companyService.getCompanyUsers(company.id);
       return {message:'Users list',status:200,data:res};
     }
@@ -25,9 +30,11 @@ export default async function (fastify: any) {
         }
       },
     },
-    accessLevel: {
-      level: 'company',
-      roles: ['admin', 'master']
+    config: {
+      auth:{
+        roles: ['master','admin'],
+        companyOnly: true
+      }
     },
     async handler(request:any, reply:any)  {
       const {id} = request.params;

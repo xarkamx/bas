@@ -6,6 +6,21 @@ import { CompanyService } from '../../services/companies/companyService';
   fastify.route({
     method: "POST",
     url: "/",
+    config: {
+      auth:{
+        roles: ['master'],
+        powerUser: true
+      }
+    },
+    schema: {
+      body: {
+        type: "object",
+        required: ["name"],
+        properties: {
+          name: { type: "string" }
+        }
+      }
+    },
     async onRequest (request, reply) {
       const {id}:any = request.user;
       const companyAuth = new CompanyAuth();
@@ -22,8 +37,15 @@ import { CompanyService } from '../../services/companies/companyService';
   fastify.route({
     method: "GET",
     url: "/",
+    config: {
+      auth:{
+        roles: ['master'],
+        powerUser: true
+      }
+    },
     async handler (_request, reply) {
-      reply.code(200);
+      const company = new CompanyService();
+      return {message: 'ok',data: await company.getAllCompanies()};
     }
   })
 

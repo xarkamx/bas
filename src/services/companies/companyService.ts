@@ -107,6 +107,10 @@ export class CompanyService {
     .whereIn('companies.id',companies)
     .select('users.name','users.email','companies.name');
   }
+
+  async getAllCompanies() {
+    return this.companyModel.db('companies').select('id','name');
+  }
 }
 
 

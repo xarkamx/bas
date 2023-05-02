@@ -7,6 +7,9 @@ import Fastify from "fastify";
 
 import Db from "./db";
 import { RolesServices } from './services/roles/rolesServices';
+import { CompanyAuth } from './services/companies/companyAuth';
+import { UsersService } from './services/users/users.service';
+import { CompanyService } from './services/companies/companyService';
 
 // Read the .env file.
 dotenv.config();
@@ -58,15 +61,32 @@ app.addHook("onRequest", async (request: any, reply) => {
 
 app.addHook("preValidation", async (request: any, reply) => {
   const {auth} = request.context.config;
+  const companyAuth = new CompanyAuth();
+  const companyServices = new CompanyService();
+  const roleService = new RolesServices();
+  if(!auth) return;
+  if(auth.powerUser) {
+    await companyAuth.isMasterUser(request.user.id);
+    request.user.company = {id:1};
+    return;
+  }
 
-  // Validate if the the endpoint is public
-  
-  // validate if the user belongs to the requested company
+  if(auth.companyOnly) {
+    const {id} = request.params;
+    const company = await companyServices.getCompany({token:id});
+    await companyAuth.validUser(request.user.id,company.id,auth.roles);
+    request.user.company = company;
+  }
 
-  // validate if the user has any required role
-
-  
-  
+  if(auth.roles) {
+    let roles = await roleService.getAllAvailableRolesForUser(request.user.id);
+    roles = roles.map((role:any) => role.role);
+    
+    const hasRoles = auth.roles.some((role:string) => roles.includes(role));
+    if(!hasRoles) {
+      reply.send({message: 'Unauthorized',statusCode: 401});
+    }
+  }
 });
 
 // Start listening.
