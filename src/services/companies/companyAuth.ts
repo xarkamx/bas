@@ -9,7 +9,8 @@ export class CompanyAuth{
   async validUser (userId: number, companyId: number,roles:string[]) {
     const companyServices = new CompanyService();
     const user =  await companyServices.getCompanyUserById(companyId,userId);
-    const hasRoles = roles.some((role) => user.roles.includes(role));
+    console.log(user)
+    const hasRoles = roles.some((role) => user.roles?.includes(role));
     if(!hasRoles) throw new HttpError('User does not have permissions',403);
     return user;
   }

@@ -42,18 +42,11 @@ export class CompanyModel {
   getCompanyUsers(id: number) {
     return this.db('company_users')
     .select(
+      'users.id',
       'users.name',
       'users.email',
-       'users_domains.id as domain_id',
-        'domains.domain as domain_name'
         )
-    .rightJoin('users', 'users.id', 'company_users.user_id')
-    .rightJoin('company_domains as cd', 'cd.company_id', 'company_users.company_id')
-    .leftJoin('users_domains', 'users_domains.user_id', 'users.id')
-    .rightJoin('domains', (resp: any)=> {
-      resp.on('domains.id', 'users_domains.domain_id')
-      .andOn('domains.id', 'cd.domain_id')
-    })
+    .leftJoin('users', 'users.id', 'company_users.user_id')
     .where({'company_users.company_id':id});
   }
 

@@ -6,6 +6,7 @@ import * as dotenv from "dotenv";
 import Fastify from "fastify";
 
 import Db from "./db";
+import { RolesServices } from './services/roles/rolesServices';
 
 // Read the .env file.
 dotenv.config();
@@ -43,8 +44,9 @@ app.addHook("onClose", async (_instance, done) => {
 });
 
 app.addHook("onRequest", async (request: any, reply) => {
+  const {config} = request.context;
   try {
-    if (request.routeSchema?.public) {
+    if (config.public) {
       return;
     }
 
@@ -52,6 +54,19 @@ app.addHook("onRequest", async (request: any, reply) => {
   } catch (err) {
     reply.send(err);
   }
+});
+
+app.addHook("preValidation", async (request: any, reply) => {
+  const {auth} = request.context.config;
+
+  // Validate if the the endpoint is public
+  
+  // validate if the user belongs to the requested company
+
+  // validate if the user has any required role
+
+  
+  
 });
 
 // Start listening.

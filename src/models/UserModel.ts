@@ -48,6 +48,7 @@ export class UserModel {
         trx.select('id').from('users_roles').where({user_id:userId, role_id:roleId}).first()
         );
   }
+
 }
 
 export type IUser = {

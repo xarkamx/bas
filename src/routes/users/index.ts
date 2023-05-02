@@ -2,7 +2,6 @@ import type { FastifyPluginAsync } from 'fastify';
 import { UsersService } from '../../services/users/users.service';
 import { CompanyService } from '../../services/companies/companyService';
 import { HttpError } from '../../errors/HttpError';
-import { CompanyAuth } from '../../services/companies/companyAuth';
 
 
 const user: FastifyPluginAsync = async (fastify:any, _opts): Promise<void> => {
@@ -12,69 +11,72 @@ const user: FastifyPluginAsync = async (fastify:any, _opts): Promise<void> => {
     schema: {
       body: {
         type: 'object',
+        required: ['username', 'email', 'password'],
         properties: {
           username: { type: 'string' },
           email: { type: 'string' },
-          password: { type: 'string' },
-          company: { type: 'string' },
+          password: { type: 'string' }
         },
       },
     },
     async handler (request:any, reply:any)  {
-      const {user} = request;
       const {username,email,password}:basicUser = request.body;
       const userService = new UsersService();
-      const companyService = new CompanyService();
       const userExist = await userService.getUser({email});
 
       if(userExist) {
-        reply.code(409);
-        return {message:'User already exist'};
+        throw new HttpError('User already exist',409);
       }
 
-      const company = await companyService.getCompany({token:request.body.company});
-
-      if(!company) {
-        throw new HttpError('Company not found',404);
-      }
-
-      const companyId = company.id;
-
-      const companyAuth = new CompanyAuth();
-      console.log(user.id,companyId)
-      await companyAuth.validUser(user.id,companyId,['master','admin']);
-
-      const [userId] = await userService.addUser({name:username,email, password});
-      await companyService.addUserToCompany(companyId,userId);
-      return {message:'User created',status:201};
+      const basicUser = userService.addUser({name:username,email, password})
+      
+      const resp = await basicUser;
+      return {message:'User created',status:201,data:resp};
     }});
 
-    fastify.route({
-      method: 'POST',
-      url: '/signup',
-      schema: {
-        public: true,
-      },
-      async handler (request:any, reply:any)  {
-        const {username,email,password}:any = request.body;
-        const userService = new UsersService();
-        const userExist = await userService.getUser({email,name:username});
-        if(!userExist) {
-          reply.code(404);
-          return {message:'User not found'};
+  fastify.route({
+    method: 'POST',
+    url: '/signup',
+    config: { public: true },
+    schema: {
+      body: {
+        type: 'object',
+        required: ['email', 'password','company'],
+        properties: {
+          username: { type: 'string' },
+          email: { type: 'string' },
+          password: { type: 'string' },
+          company: { type: 'string' }
         }
+      }
+    },
+    async handler (request:any, reply:any)  {
+      const {username,email,password,company}:any = request.body;
+      const userService = new UsersService();
+      const companyService = new CompanyService();
+      const userExist = await userService.getUser({email,name:username});
+      if(!userExist) {
+        reply.code(404);
+        return {message:'User not found'};
+      }
 
-        const valid =await userService.singUp({name:username,email, password});
-        
-        if(!valid) {
-          reply.code(401);
-          return {message:'Invalid credentials'};
-        }
 
-        const token = fastify.jwt.sign({email:userExist.email,id:userExist.id}, {expiresIn: '1h'});
-        
-        reply.code(200).send({token,ttl:3600});
-      }});
+      const companyExist = await companyService.getCompany({token:company});
+      const companyUserExist = await companyService.getCompanyUserByEmail(companyExist.id,userExist.email);
+      if(!companyUserExist[0]) {
+         throw new HttpError('User not valid',401);
+      }
+
+      const valid =await userService.singUp({name:username,email, password});
+      
+      if(!valid) {
+        throw new HttpError('User not valid',403);
+      }
+
+      const token = fastify.jwt.sign({email:userExist.email,id:userExist.id}, {expiresIn: '1h'});
+      
+      reply.code(200).send({token,ttl:new Date().getTime() + 3600000});
+    }});
 };
 
 

@@ -4,6 +4,14 @@ import { passwordEncrypt } from '../src/utils/passwordUtils';
 export async function seed(knex: Knex): Promise<void> {
     // Deletes ALL existing entries
     await knex("bas.users").del();
+    await knex("bas.companies").del();
+    await knex("bas.company_users").del();
+    await knex("bas.roles").del();
+    await knex("bas.users_roles").del();
+    await knex("bas.domains").del();
+    await knex("bas.company_domains").del();
+    await knex("bas.users_domains").del();
+
 
     // Inserts seed entries
     await knex("bas.users").insert([
@@ -26,20 +34,6 @@ export async function seed(knex: Knex): Promise<void> {
     await knex("bas.users_roles").insert([
         { user_id: 1, role_id: 1 }
     ]);
-
-    await knex("bas.domains").insert({
-        domain: "demo.com"
-    });
-
-    await knex("bas.company_domains").insert({
-        company_id: 1,
-        domain_id: 1
-    });
-
-    await knex("bas.users_domains").insert({
-        user_id: 1,
-        domain_id: 1
-    });
 }
 
 ;

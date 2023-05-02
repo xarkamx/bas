@@ -1,6 +1,6 @@
 import { type FastifyInstance } from 'fastify';
 import { CompanyService } from '../../../../../services/companies/companyService';
-import { RolesServices } from '../../../../../services/roles/RolesServices';
+import { RolesServices } from '../../../../../services/roles/rolesServices';
 import { UsersService } from '../../../../../services/users/users.service';
 import { HttpError } from '../../../../../errors/HttpError';
 
@@ -27,22 +27,20 @@ export default async function (fastify: FastifyInstance) {
     async handler(request:any, reply)  {
       const {id,userId} = request.params;
       const {roleName} = request.body;
-      try{
-        const {userService,role} = await validateRole(roleName,id,userId);
-        await userService.addRoleToUser(userId,role.id);
-        reply.code(201);
-      }catch(err:any){
-        reply.code(err.code || 500).send({message:err.message});
-      }
+      const {userService,role} = await validateRole(roleName,id,userId);
+      await userService.addRoleToUser(userId,role.id);
+      return {message:'Role added',status:201};
   }})
 }
 
 async function validateRole(roleName:string,id:number,userId:number){
   const userService = new UsersService();
   const roleService = new RolesServices();
+  const companyService = new CompanyService();
+  const company = await companyService.getCompany({token:id});
   const resp = await Promise.allSettled([
-    roleService.getRole({name:roleName,companyId:id}),
-    userService.userBelogsToCompany(userId,id)]);
+    roleService.getRole({name:roleName,companyId:company.id}),
+    userService.userBelogsToCompany(userId,company.id)]);
 
   const [role,isValid] = resp.map((r:any)=>r.value);
   if(!role){

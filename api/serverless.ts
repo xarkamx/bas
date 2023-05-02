@@ -14,7 +14,7 @@ Db.getInstance();
 const isProduction = process.env.NODE_ENV === "production";
 // Instantiate Fastify with some config
 const app = Fastify({
-  logger: !isProduction,
+  logger: false,
 });
 
 // Register JWT
@@ -55,7 +55,15 @@ app.addHook("onRequest", async (request: any, reply) => {
   }
 });
 
-// why this hook is not working?
+app.addHook("preHandler", async (request: any, reply) => {
+  if(request.auth?.roles) {
+    const {user} = request;
+    console.log(user,'here?')
+    if(!request.auth.roles.includes(user.role)) {
+      reply.code(403).send({message:'Forbidden'});
+    }
+  }
+});
 
 app.addHook("preValidation", async (request: any, reply) => {
   try {

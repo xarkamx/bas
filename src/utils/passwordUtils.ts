@@ -5,5 +5,6 @@ export function passwordEncrypt(password: string): string {
 }
 
 export function validatePassword(password: string, hash: string): boolean {
+  console.log(password, hash)
   return bcrypt.compareSync(password, hash);
 }

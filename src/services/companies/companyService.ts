@@ -1,8 +1,10 @@
 import { HttpError } from '../../errors/HttpError';
 import { CompanyModel, type UserWithDomainName, type ICompany } from '../../models/CompanyModel';
 import { RolesModel } from '../../models/RolesModel';
-import { RolesServices } from '../roles/RolesServices';
+import { type IUser } from '../../models/UserModel';
+import { RolesServices } from '../roles/rolesServices';
 import { UsersService } from '../users/users.service';
+import { CompanyAuth } from './companyAuth';
 
 export class CompanyService {
   companyModel: CompanyModel;
@@ -17,6 +19,8 @@ export class CompanyService {
     const companyId = await this.companyModel.addCompany(company);
     await this.companyModel.addUserToCompany(companyId[0],user.id);
     const [roleId] = await this.addMasterRole(companyId[0]);
+    await this.addRoleToCompany(companyId[0],'admin');
+    await this.addRoleToCompany(companyId[0],'user');
     await userService.addRoleToUser(user.id,roleId);
     const resultingCompany = await this.getCompanyById(companyId[0]);
     return {message:'Company created',status:201,company:resultingCompany};
@@ -33,20 +37,19 @@ export class CompanyService {
   }
 
   async addMasterRole(companyId: number) {
-    const role = {
-      name: 'master',
-      companyId
-    };
+    return this.addRoleToCompany(companyId,'master');
+  }
+
+  async addRoleToCompany(companyId: number, role: string) {
     const roleModel = new RolesModel();
-    const roleExists = await roleModel.getRole(role);
-    if(roleExists) return roleExists.id;
-    const res = await roleModel.addRole(role);
+    const roleExists = await roleModel.getRole({name:role,companyId});
+    if(roleExists) throw new HttpError('Role already exists',400);
+    const res = await roleModel.addRole({name:role,companyId});
     return res;
   }
 
   async getCompany(query: any) {
-    const res = await this.companyModel.getCompany(query);
-    return res;
+    return this.companyModel.getCompany(query);
   }
   
   async getCompanyById(id: number) {
@@ -55,8 +58,7 @@ export class CompanyService {
   }
 
   async getCompanyUsers(id: number) {
-    const res:UserWithDomainName[] = await this.companyModel.getCompanyUsers(id);
-    return formatUserList(res);
+    return this.companyModel.getCompanyUsers(id);
   }
 
   async getCompanyDomains(id: number) {
@@ -69,15 +71,42 @@ export class CompanyService {
   }
 
   async getCompanyUserById(id: number, userId: number) {
-    const users:any=  this.companyModel.getCompanyUsers(id).where({'users.id':userId});
-    if(users.length === 0) throw new HttpError('User not found in Company',404);
+    const user:any=  await this.companyModel.getCompanyUsers(id).where({'users.id':userId}).first();
+    if(!user) throw new HttpError('User not found in Company',404);
     const roleService = new RolesServices();
     const roles = await roleService.getRoleByUserId(userId,id);
-    const user= formatUserList(users)[0];
-    user.roles = roles?.map((role:any) => role.name);
+    user.roles = roles?.map((role:any) => role.name) || [];
     return user;
   }
 
+  async createCompanyUser(token:string,userDetails:IUser) {
+    const company  = await this.getCompany({token});
+    const userService = new UsersService();
+
+      if(!company) {
+        throw new HttpError('Company not found',404);
+      }
+
+      const [userId] = await userService.addUser(userDetails);
+      return this.addUserToCompany(company.id,userId);
+  }
+
+  async getCompaniesByUser(userId: number) {
+    return this.companyModel
+      .db('companies')
+      .leftJoin('company_users','companies.id','company_users.company_id')
+      .where({'company_users.user_id':userId})
+      .select('companies.id','companies.name');
+  }
+
+  async getAllUsersInCompanies(companies:number[]){
+    return this.companyModel
+    .db('companies')
+    .leftJoin('company_users','companies.id','company_users.company_id')
+    .leftJoin('users','company_users.user_id','users.id')
+    .whereIn('companies.id',companies)
+    .select('users.name','users.email','companies.name');
+  }
 }
 
 

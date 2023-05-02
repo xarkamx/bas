@@ -26,5 +26,13 @@ export class RolesServices {
     return this.roleModel.getRolesByUserId(userId, companyId);
   }
 
+  async getAllAvailableRolesForUser(userId:number) {
+    return this.roleModel.db('users_roles')
+      .leftJoin('roles', 'roles.id', 'users_roles.role_id')
+      .rightJoin('companies', 'companies.id', 'roles.company_id')
+      .select('roles.name as role', 'companies.name as company')
+      .where('users_roles.user_id', userId);
+  }
+
 }
 
