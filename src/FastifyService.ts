@@ -4,6 +4,7 @@ import closeWithGrace from "close-with-grace";
 import { RolesServices } from './services/roles/rolesServices';
 import { CompanyAuth } from './services/companies/companyAuth';
 import { CompanyService } from './services/companies/companyService';
+import { HttpError } from './errors/HttpError';
 export function FastifyService(app:any){
   
 // Delay is the number of milliseconds for the graceful close to finish
@@ -38,16 +39,22 @@ app.addHook("preValidation", async (request: any, reply:any) => {
   const companyAuth = new CompanyAuth();
   const companyServices = new CompanyService();
   const roleService = new RolesServices();
+  
+  const {id} = request.params;
+  const company = await companyServices.getCompany({token:id});
+  
   if(!auth) return;
   if(auth.powerUser) {
     await companyAuth.isMasterUser(request.user.id);
-    request.user.company = {id:1};
+    request.user.company = company;
     return;
   }
 
   if(auth.companyOnly) {
-    const {id} = request.params;
-    const company = await companyServices.getCompany({token:id});
+    if(!company) {
+      throw new HttpError('Company not found',404)
+    }
+    
     await companyAuth.validUser(request.user.id,company.id,auth.roles);
     request.user.company = company;
   }

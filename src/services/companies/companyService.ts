@@ -87,7 +87,12 @@ export class CompanyService {
       }
 
       const [userId] = await userService.addUser(userDetails);
-      return this.addUserToCompany(company.id,userId);
+      await this.addUserToCompany(company.id,userId) 
+      return {
+        userId,
+        companyId:company.id,
+        ...userDetails
+      };
   }
 
   async getCompaniesByUser(userId: number) {

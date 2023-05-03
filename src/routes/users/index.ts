@@ -60,7 +60,6 @@ const user: FastifyPluginAsync = async (fastify:any, _opts): Promise<void> => {
         return {message:'User not found'};
       }
 
-
       const companyExist = await companyService.getCompany({token:company});
       const companyUserExist = await companyService.getCompanyUserByEmail(companyExist.id,userExist.email);
       if(!companyUserExist[0]) {
