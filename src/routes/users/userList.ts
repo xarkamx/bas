@@ -1,4 +1,3 @@
-import { type FastifyPluginAsync } from 'fastify';
 import { CompanyService } from '../../services/companies/companyService';
 
 
