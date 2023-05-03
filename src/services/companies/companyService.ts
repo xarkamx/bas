@@ -111,24 +111,3 @@ export class CompanyService {
     return this.companyModel.db('companies').select('id','name');
   }
 }
-
-
-function formatUserList(users: UserWithDomainName[]) {
-  return users.reduce(userReducer,[]);
-}
-
-function userReducer(acc:UserWithDomains[],curr:UserWithDomainName) {
-  const {name,email,domain_name,role_name} = curr;
-  if(acc.length === 0) return [{name,email,roles:[role_name],domains:[domain_name]}]
-  const user = acc.find((user:any) => user.email === email);
-  user?.domains.push(domain_name);
-  user?.roles.push(role_name);
-  return acc;
-}
-
-type UserWithDomains = {
-  name: string;
-  email: string;
-  domains: string[];
-  roles: string[];
-}
