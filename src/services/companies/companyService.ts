@@ -1,5 +1,5 @@
 import { HttpError } from '../../errors/HttpError';
-import { CompanyModel, type UserWithDomainName, type ICompany } from '../../models/CompanyModel';
+import { CompanyModel,  type ICompany } from '../../models/CompanyModel';
 import { RolesModel } from '../../models/RolesModel';
 import { type IUser } from '../../models/UserModel';
 import { RolesServices } from '../roles/rolesServices';
