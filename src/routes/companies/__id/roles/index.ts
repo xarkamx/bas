@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
-import { RolesServices } from '../../../../services/roles/RolesServices';
+import { RolesServices } from '../../../../services/roles/rolesServices';
 import { UsersService } from '../../../../services/users/users.service';
 import { CompanyService } from '../../../../services/companies/companyService';
 
