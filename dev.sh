@@ -1,7 +1,7 @@
 docker-compose up -d db
 sleep 15
 
-export DB_CONNECTION=mariadb
+export DB_CONNECTION=mysql
 export DB_HOST=localhost
 export DB_PORT=3306
 export DB_DATABASE=bas
