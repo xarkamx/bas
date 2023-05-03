@@ -4,7 +4,6 @@ import { RolesModel } from '../../models/RolesModel';
 import { type IUser } from '../../models/UserModel';
 import { RolesServices } from '../roles/rolesServices';
 import { UsersService } from '../users/users.service';
-import { CompanyAuth } from './companyAuth';
 
 export class CompanyService {
   companyModel: CompanyModel;

@@ -18,7 +18,6 @@ const userListRoute:any= {
 
     const ownerAccesibleCompanies = await companyService.getCompaniesByUser(user.id);
     const companies = ownerAccesibleCompanies.map((company:any) => company.id);
-    console.log(companies);
     const users = await companyService.getAllUsersInCompanies(companies);
     return {message:'Users list',status:200,data:users};
   },
