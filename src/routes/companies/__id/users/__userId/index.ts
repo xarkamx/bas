@@ -31,6 +31,24 @@ export default async function (fastify: FastifyInstance) {
       await userService.addRoleToUser(userId,role.id);
       return {message:'Role added',status:201};
   }})
+
+  fastify.route({
+    method: 'DELETE',
+    url: '/',
+    config:{
+      auth:{
+        roles:['master','admin'],
+        companyOnly:true
+      }
+    },
+    async handler(request:any, reply)  {
+      const {userId} = request.params;
+      const {id} = request.user.company;
+      const service = new CompanyService();
+      await service.removeUserFromCompany(id,userId);
+      return {message:'User removed',status:200};
+    }
+  });
 }
 
 async function validateRole(roleName:string,id:number,userId:number){

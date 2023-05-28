@@ -49,6 +49,13 @@ export class UserModel {
         );
   }
 
+  async removeUserById(userId: number) {
+    return this.db
+      .transaction(async (trx: any) => 
+        trx.delete().from(this.tableName).where({id:userId})
+        );
+  }
+
 }
 
 export type IUser = {

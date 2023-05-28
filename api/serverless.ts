@@ -20,7 +20,7 @@ const app = Fastify({
 void app.register<{ secret: any,sign:any,verify:any }>(jwt, {
   secret: process.env.JWT_SECRET,
   sign: {
-    expiresIn: "1h",
+    expiresIn: "8h",
     iss: 'bas',
   },
   verify: {

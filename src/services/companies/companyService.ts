@@ -115,4 +115,14 @@ export class CompanyService {
   async getAllCompanies() {
     return this.companyModel.db('companies').select('id','name');
   }
+
+  async removeUserFromCompany(companyId: number, userId: number) {
+    const userService = new UsersService();
+    await this.companyModel.db.transaction(async (trx: any) => {
+      await trx.delete().from('company_users').where({company_id:companyId, user_id:userId});
+      await trx.delete().from('users_roles').where({user_id:userId});
+    });
+    await userService.removeUserById(userId);
+    return {success:true};
+  }
 }

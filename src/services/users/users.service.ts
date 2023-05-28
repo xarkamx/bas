@@ -53,6 +53,10 @@ export class UsersService {
     }
   }
 
+  async removeUserById(userId:number) {
+    return this.model.removeUserById(userId);
+  }
+
   
 
   async singUp(user:IUser) {

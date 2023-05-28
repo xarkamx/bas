@@ -72,9 +72,9 @@ const user: FastifyPluginAsync = async (fastify:any, _opts): Promise<void> => {
         throw new HttpError('User not valid',403);
       }
 
-      const token = fastify.jwt.sign({email:userExist.email,id:userExist.id}, {expiresIn: '1h'});
+      const token = fastify.jwt.sign({email:userExist.email,id:userExist.id}, {expiresIn: '8h'});
       
-      reply.code(200).send({token,ttl:new Date().getTime() + 3600000});
+      reply.code(200).send({token,ttl:new Date().getTime() + 3600000*8});
     }});
 };
 
