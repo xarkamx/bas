@@ -1,6 +1,5 @@
 
 import { db } from '../config/db';
-import { UsersService } from '../services/users/users.service';
 import { generateRandomString } from '../utils/helpers';
 import { snakeCaseReplacer } from '../utils/objectFormat';
 
