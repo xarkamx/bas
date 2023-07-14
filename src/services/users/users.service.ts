@@ -57,6 +57,10 @@ export class UsersService {
     return this.model.removeUserById(userId);
   }
 
+  async changePassword(userId:number, newPassword:string) {
+    return this.model.changePassword(userId, newPassword);
+  }
+
   
 
   async singUp(user:IUser) {

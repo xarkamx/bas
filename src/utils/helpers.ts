@@ -23,3 +23,15 @@ export function generateRandomString() {
   .join('').trimStart().replace(/ /g,'');
   return text;
 }
+
+export function snakeCaseReplacer(obj:any) {
+  const newObj:any = {};
+  Object.keys(obj).forEach((key) => {
+    newObj[snakeCase(key)] = obj[key];
+  });
+  return newObj;
+}
+
+export function snakeCase(str:string) {
+  return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+}

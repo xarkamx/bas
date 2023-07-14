@@ -61,6 +61,11 @@ const user: FastifyPluginAsync = async (fastify:any, _opts): Promise<void> => {
       }
 
       const companyExist = await companyService.getCompany({token:company});
+      
+      if(!companyExist) {
+        throw new HttpError('Company not found',404);
+      }
+
       const companyUserExist = await companyService.getCompanyUserByEmail(companyExist.id,userExist.email);
       if(!companyUserExist[0]) {
          throw new HttpError('User not valid',401);

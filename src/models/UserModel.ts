@@ -55,7 +55,13 @@ export class UserModel {
         trx.delete().from(this.tableName).where({id:userId})
         );
   }
-
+  
+  async changePassword(userId: number, newPassword: string) {
+    return this.db
+      .transaction(async (trx: any) => 
+        trx.update({password:passwordEncrypt(newPassword)}).from(this.tableName).where({id:userId})
+        );
+  }
 }
 
 export type IUser = {

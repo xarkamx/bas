@@ -4,7 +4,7 @@ services:
   db:
     image: mariadb:10.6
     ports:
-      - "3306:3306"
+      - "3307:3307"
     restart: always
     environment:
       MYSQL_DATABASE: bas
