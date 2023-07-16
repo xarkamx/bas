@@ -25,7 +25,7 @@ export default async function notifications(fastify:any){
         },
       },
     },
-    async handler (request, reply)  {
+    async handler (request:any, reply:any)  {
       const service = new NotificationService();
       const deviceService = new DevicesService();
       const resp = await deviceService.getDevice(request.body.deviceId);
