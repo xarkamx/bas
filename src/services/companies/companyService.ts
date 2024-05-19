@@ -25,14 +25,14 @@ export class CompanyService {
     return {message:'Company created',status:201,company:resultingCompany};
   }
 
-  async addUserToCompany(companyId: number, userId: number) {
+  async addUserToCompany(companyId: number, userId: number,timeLimit='8h') {
     const userService = new UsersService();
     const user = await userService.userBelogsToCompany(userId,companyId);
     if(user) {
       throw new HttpError('User already belongs to company',400);
     }
     
-    return this.companyModel.addUserToCompany(companyId,userId);
+    return this.companyModel.addUserToCompany(companyId,userId,timeLimit);
   }
 
   async addMasterRole(companyId: number) {
@@ -87,7 +87,7 @@ export class CompanyService {
       }
 
       const [userId] = await userService.addUser(userDetails);
-      await this.addUserToCompany(company.id,userId) 
+      await this.addUserToCompany(company.id,userId,userDetails.timeLimit) 
       return {
         userId,
         companyId:company.id,

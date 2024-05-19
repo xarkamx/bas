@@ -69,6 +69,7 @@ export type IUser = {
   email: string;
   password: string;
   addressId?: number;
+  timeLimit?: string;
 }
 export type queryUser = {
   id?: number;

@@ -21,10 +21,10 @@ export class CompanyModel {
     return res;
   }
 
-  async addUserToCompany(companyId: number, userId: number) {
+  async addUserToCompany(companyId: number, userId: number, timeLimit='8h') {
     const res = await this.db
       .transaction(async (trx: any) => 
-      trx.insert({company_id:companyId, user_id:userId}).into('company_users')
+      trx.insert({company_id:companyId, user_id:userId,time_limit:timeLimit}).into('company_users')
       );
     return res;
   }
@@ -45,6 +45,7 @@ export class CompanyModel {
       'users.id',
       'users.name',
       'users.email',
+      'company_users.time_limit',
         )
     .leftJoin('users', 'users.id', 'company_users.user_id')
     .where({'company_users.company_id':id});

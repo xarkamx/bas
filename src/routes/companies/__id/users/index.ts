@@ -27,6 +27,7 @@ export default async function (fastify: any) {
           name: { type: 'string' },
           email: { type: 'string' },
           password: { type: 'string' },
+          timeLimit: { type: 'string'},
         }
       },
     },
@@ -38,9 +39,9 @@ export default async function (fastify: any) {
     },
     async handler(request:any, reply:any)  {
       const {id} = request.params;
-      const {email,password,name} = request.body;
+      const {email,password,name,timeLimit} = request.body;
       const companyService = new CompanyService();
-      const res = await companyService.createCompanyUser(id,{name,email,password});
+      const res = await companyService.createCompanyUser(id,{name,email,password,timeLimit});
       return {message:'User created',status:201,data:res};
     }
   });
