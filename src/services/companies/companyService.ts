@@ -86,7 +86,11 @@ export class CompanyService {
         throw new HttpError('Company not found',404);
       }
 
-      const [userId] = await userService.addUser(userDetails);
+      const [userId] = await userService.addUser({
+        name:userDetails.name,
+        email:userDetails.email,
+        password:userDetails.password
+      });
       await this.addUserToCompany(company.id,userId,userDetails.timeLimit) 
       return {
         userId,
