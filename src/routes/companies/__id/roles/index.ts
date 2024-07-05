@@ -29,6 +29,41 @@ import { HttpError } from '../../../../errors/HttpError';
     }
   });
 
+  fastify.route({
+    method: "GET",
+    url: "/",
+    config: {
+      auth:{
+        companyOnly:true,
+      }
+    },
+    async handler (_request, reply) {
+      const {company}:any = _request.user;
+      const roles = new RolesServices();
+      const res = await roles.getRoles(company.id);
+      return {message:'Roles list',status:200,data:res};
+    }
+  });
+
+  fastify.route({
+    method: "GET",
+    url: "/:roleName/users",
+    config: {
+      auth:{
+        companyOnly:true,
+      }
+    },
+    async handler (_request, reply) {
+      const {roleName}:any = _request.params;
+      const {company}:any = _request.user;
+      const roles = new RolesServices();
+      const res = await roles.getUsersPerRoleName(roleName,company.id);
+      return {message:'Role users',status:200,data:res};
+      
+    }
+  });
+
+  
 };
 
 export default Roles;

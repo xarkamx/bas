@@ -34,5 +34,18 @@ export class RolesServices {
       .where('users_roles.user_id', userId);
   }
 
+  async getUsersPerRoleName(roleName: string, companyId: number) {
+    return this.roleModel.db('users_roles')
+      .leftJoin('roles', 'roles.id', 'users_roles.role_id')
+      .leftJoin('users', 'users.id', 'users_roles.user_id')
+      .select('users.id', 'users.email', 'users.name')
+      .where('roles.name', roleName)
+      .andWhere('roles.company_id', companyId);
+  }
+
+  async getRoles(companyId: number) {
+    return this.roleModel.db('roles').where({company_id: companyId});
+  }
+
 }
 

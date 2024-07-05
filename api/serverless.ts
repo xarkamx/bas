@@ -5,7 +5,7 @@ import Fastify from "fastify";
 
 import Db from "../src/db";
 import { FastifyService } from '../src/FastifyService';
-
+import all from "../src";
 // Read the .env file.
 dotenv.config();
 Db.getInstance();
@@ -28,7 +28,7 @@ void app.register<{ secret: any,sign:any,verify:any }>(jwt, {
   },
 });
 // Register your application as a normal plugin.
-void app.register(import("../src/index"));
+void app.register(all);
 
 FastifyService(app)
 

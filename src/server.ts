@@ -6,7 +6,7 @@ import Fastify from "fastify";
 
 import Db from "./db";
 import { FastifyService } from './FastifyService';
-
+import all from "."
 // Read the .env file.
 dotenv.config();
 Db.getInstance();
@@ -22,7 +22,7 @@ void app.register<{ secret: any }>(jwt, {
   secret: process.env.JWT_SECRET,
 });
 // Register your application as a normal plugin.
-void app.register(import("."));
+void app.register(all);
 
 // Init graphql
 
