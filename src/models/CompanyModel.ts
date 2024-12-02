@@ -47,7 +47,7 @@ export class CompanyModel {
       'users.email',
       'company_users.time_limit',
         )
-    .leftJoin('users', 'users.id', 'company_users.user_id')
+    .join('users', 'users.id', 'company_users.user_id')
     .where({'company_users.company_id':id});
   }
 
